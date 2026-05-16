@@ -124,9 +124,10 @@ function AddFlashcard({ onAdd, onClose }) {
 
     onAdd({
       category,
-      fen:      fenBefore.trim(),
-      bestMove: diff.uci,
-      label:    label.trim() || undefined,   // only included if non-empty
+      fen:         fenBefore.trim(),
+      bestMove:    diff.uci,
+      bestMoveFen: fenAfter.trim(),
+      label:       label.trim() || undefined,
     })
   }
 

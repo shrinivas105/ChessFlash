@@ -568,14 +568,22 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
 /* ═══════════════════════════════════════════════════════════════
    ChessFlash – CSS Additions
-   Append these rules to index.css (or import as a separate file)
+   Append these rules to the bottom of index.css
 ═══════════════════════════════════════════════════════════════ */
 
 /* ══════════════════════════════════════════════════════════════
-   ADD FLASHCARD BUTTON (Home screen)
+   HOME — ADD BUTTON
 ══════════════════════════════════════════════════════════════ */
+
+.home-divider {
+  height: 1px;
+  background: var(--border);
+  width: 100%;
+  margin: 0.25rem 0;
+}
 
 .cat-btn--add {
   border-left-color: var(--text-faint);
@@ -588,7 +596,6 @@ body {
     box-shadow 0.18s ease,
     opacity 0.18s ease;
 }
-
 .cat-btn--add:hover {
   border-color: var(--gold);
   border-style: solid;
@@ -596,39 +603,187 @@ body {
   box-shadow: 0 0 24px rgba(201,148,26,0.1);
   opacity: 1;
 }
+.cat-btn--add:hover .cat-arrow { color: var(--gold); transform: translateX(3px); }
 
-.cat-btn--add:hover .cat-arrow {
-  transform: translateX(3px);
-  color: var(--gold);
+.add-icon { font-size: 1.4rem !important; }
+
+/* Empty category button */
+.cat-btn--empty {
+  opacity: 0.45;
+  cursor: default;
+}
+.cat-btn--empty:hover {
+  transform: none;
+  background: var(--bg-card);
+  box-shadow: none;
 }
 
-.add-icon {
-  font-size: 1.4rem !important;
-}
-
-.custom-badge {
-  display: inline-flex;
-  align-items: center;
-  margin-left: 0.5rem;
-  padding: 0.1rem 0.5rem;
-  font-size: 0.7rem;
+/* Card count chip replacing the arrow */
+.cat-count {
+  font-size: 0.72rem;
   font-weight: 600;
-  background: var(--gold-dim);
-  border: 1px solid var(--gold-border);
-  border-radius: 100px;
-  color: var(--gold-light);
-  vertical-align: middle;
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* ══════════════════════════════════════════════════════════════
-   MODAL OVERLAY
+   HOME — CSV TOOLBAR
+══════════════════════════════════════════════════════════════ */
+
+.csv-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.csv-toolbar-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  font-weight: 600;
+}
+
+.csv-total-badge {
+  padding: 0.1rem 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: 100px;
+  color: var(--text-muted);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.csv-toolbar-btns {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.csv-btn { flex: 1; min-width: 130px; }
+.csv-btn--disabled { opacity: 0.38; cursor: not-allowed; }
+
+.csv-hint {
+  font-size: 0.73rem;
+  color: var(--text-faint);
+  line-height: 1.6;
+}
+
+.csv-success,
+.csv-error {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.9rem;
+  animation: feedbackIn 0.2s ease;
+}
+.csv-success {
+  color: var(--correct);
+  background: var(--correct-dim);
+  border: 1px solid rgba(34,197,94,0.3);
+}
+.csv-error {
+  color: var(--wrong);
+  background: var(--wrong-dim);
+  border: 1px solid rgba(239,68,68,0.3);
+}
+.csv-dismiss {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  opacity: 0.7;
+  padding: 0;
+  line-height: 1;
+  color: inherit;
+}
+.csv-dismiss:hover { opacity: 1; }
+
+/* ══════════════════════════════════════════════════════════════
+   FLASHCARD — PROGRESS + SKIP + LABEL
+══════════════════════════════════════════════════════════════ */
+
+/* Progress "1 / 12" in the top bar */
+.fc-progress {
+  font-size: 0.75rem;
+  color: var(--text-faint);
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Card label pill above board */
+.fc-label {
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--gold-light);
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+  border-radius: 100px;
+  padding: 0.35rem 1.1rem;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Idle row: hint text + skip button side by side */
+.fc-idle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.75rem;
+}
+
+.skip-btn {
+  flex-shrink: 0;
+  color: var(--text-faint);
+}
+.skip-btn:hover { color: var(--text-muted); }
+
+/* Feedback row: message + Next button side by side */
+.feedback-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Empty state hint */
+.fc-empty-hint {
+  font-size: 0.83rem;
+  color: var(--text-faint);
+  margin-top: -0.5rem;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODAL — ADD FLASHCARD
 ══════════════════════════════════════════════════════════════ */
 
 .modal-overlay {
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: rgba(4, 5, 10, 0.85);
+  background: rgba(4,5,10,0.85);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   display: flex;
@@ -647,7 +802,7 @@ body {
   border: 1px solid var(--border-light);
   border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
-  animation: modalSlideUp 0.25s cubic-bezier(0.34, 1.4, 0.64, 1);
+  animation: modalSlideUp 0.25s cubic-bezier(0.34,1.4,0.64,1);
 }
 
 @keyframes modalSlideUp {
@@ -655,7 +810,6 @@ body {
   to   { opacity: 1; transform: translateY(0)    scale(1);    }
 }
 
-/* ── Modal header ── */
 .modal-header {
   display: flex;
   align-items: center;
@@ -674,10 +828,6 @@ body {
   color: var(--text);
 }
 
-.modal-title-icon {
-  font-size: 1.05rem;
-}
-
 .modal-close {
   background: transparent;
   border: 1px solid var(--border);
@@ -693,14 +843,8 @@ body {
   transition: all 0.15s ease;
   flex-shrink: 0;
 }
+.modal-close:hover { background: var(--bg-elevated); color: var(--text); border-color: var(--border-light); }
 
-.modal-close:hover {
-  background: var(--bg-elevated);
-  color: var(--text);
-  border-color: var(--border-light);
-}
-
-/* ── Form ── */
 .modal-form {
   padding: 1.4rem 1.5rem 1.5rem;
   display: flex;
@@ -708,11 +852,8 @@ body {
   gap: 1.3rem;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
+/* Form elements */
+.form-group  { display: flex; flex-direction: column; gap: 0.5rem; }
 
 .form-label {
   font-size: 0.82rem;
@@ -722,154 +863,6 @@ body {
   color: var(--text-muted);
 }
 
-.form-label-sub {
-  font-weight: 400;
-  text-transform: none;
-  letter-spacing: 0;
-  color: var(--text-faint);
-}
-
-/* ── Category pills ── */
-.cat-pills {
-  display: flex;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-}
-
-.cat-pill {
-  padding: 0.45rem 1rem;
-  border-radius: 100px;
-  border: 1px solid var(--border);
-  background: var(--bg-elevated);
-  color: var(--text-muted);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  min-height: 36px;
-}
-
-.cat-pill:hover {
-  color: var(--text);
-  border-color: var(--border-light);
-}
-
-.cat-pill--opening.cat-pill--active {
-  background: var(--amber-dim);
-  border-color: rgba(217,119,6,0.55);
-  color: var(--amber);
-}
-
-.cat-pill--tactics.cat-pill--active {
-  background: var(--crimson-dim);
-  border-color: rgba(220,38,38,0.55);
-  color: var(--crimson);
-}
-
-.cat-pill--endgame.cat-pill--active {
-  background: var(--sapphire-dim);
-  border-color: rgba(37,99,235,0.55);
-  color: var(--sapphire);
-}
-
-/* ── Text inputs ── */
-.form-input {
-  width: 100%;
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.9rem;
-  padding: 0.7rem 0.95rem;
-  outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  min-height: 44px;
-}
-
-.form-input:focus {
-  border-color: var(--gold);
-  box-shadow: 0 0 0 3px rgba(201,148,26,0.15);
-}
-
-.form-input--error {
-  border-color: var(--wrong) !important;
-  box-shadow: 0 0 0 3px rgba(239,68,68,0.12) !important;
-}
-
-.form-textarea {
-  resize: vertical;
-  min-height: 64px;
-  font-family: 'Courier New', monospace;
-  font-size: 0.82rem;
-  line-height: 1.5;
-}
-
-.form-hint {
-  font-size: 0.76rem;
-  color: var(--text-faint);
-  line-height: 1.5;
-}
-
-.form-hint code {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 0.05rem 0.35rem;
-  font-size: 0.8em;
-  color: var(--gold-light);
-}
-
-.form-error {
-  font-size: 0.78rem;
-  color: var(--wrong);
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-.form-error::before {
-  content: '⚠';
-  font-size: 0.7rem;
-}
-
-/* ── Modal action row ── */
-.modal-actions {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: flex-end;
-  padding-top: 0.3rem;
-}
-
-/* ── Card label shown above the board ── */
-.fc-label {
-  width: 100%;
-  max-width: 480px;
-  text-align: center;
-  font-family: 'Cinzel', serif;
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--gold-light);
-  background: var(--gold-dim);
-  border: 1px solid var(--gold-border);
-  border-radius: 100px;
-  padding: 0.35rem 1.1rem;
-  animation: fadeIn 0.3s ease;
-}
-
-/* ── Feedback row: message + Next button side by side ── */
-.feedback-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-/* ── Optional badge next to form label ── */
 .form-optional-badge {
   display: inline-flex;
   align-items: center;
@@ -886,7 +879,6 @@ body {
   vertical-align: middle;
 }
 
-/* ── Step badge next to label ── */
 .form-step-badge {
   display: inline-flex;
   align-items: center;
@@ -903,7 +895,64 @@ body {
   vertical-align: middle;
 }
 
-/* ── Detected-move preview bar ── */
+.cat-pills { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+.cat-pill {
+  padding: 0.45rem 1rem;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: 36px;
+}
+.cat-pill:hover { color: var(--text); border-color: var(--border-light); }
+.cat-pill--opening.cat-pill--active  { background: var(--amber-dim);   border-color: rgba(217,119,6,0.55);  color: var(--amber); }
+.cat-pill--tactics.cat-pill--active  { background: var(--crimson-dim); border-color: rgba(220,38,38,0.55);  color: var(--crimson); }
+.cat-pill--endgame.cat-pill--active  { background: var(--sapphire-dim);border-color: rgba(37,99,235,0.55);  color: var(--sapphire); }
+
+.form-input {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  padding: 0.7rem 0.95rem;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  min-height: 44px;
+}
+.form-input:focus       { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,148,26,0.15); }
+.form-input--error      { border-color: var(--wrong) !important; box-shadow: 0 0 0 3px rgba(239,68,68,0.12) !important; }
+
+.form-textarea {
+  resize: vertical;
+  min-height: 64px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.form-hint  { font-size: 0.76rem; color: var(--text-faint); line-height: 1.5; }
+.form-hint strong { color: var(--text-muted); }
+
+.form-error {
+  font-size: 0.78rem;
+  color: var(--wrong);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.form-error::before { content: '⚠'; font-size: 0.7rem; }
+
+/* Move detected preview */
 .move-preview {
   display: flex;
   align-items: center;
@@ -914,47 +963,25 @@ body {
   border-radius: var(--radius-sm);
   animation: feedbackIn 0.2s ease;
 }
+.move-preview-check  { font-size: 1rem; flex-shrink: 0; }
+.move-preview-label  { font-size: 0.8rem; color: var(--text-muted); flex-shrink: 0; }
+.move-preview-san    { font-family: 'Cinzel', serif; font-size: 1.05rem; font-weight: 700; color: var(--correct); letter-spacing: 0.04em; }
+.move-preview-uci    { font-size: 0.78rem; color: var(--text-faint); font-family: 'Courier New', monospace; }
 
-.move-preview-check {
-  font-size: 1rem;
-  flex-shrink: 0;
-}
-
-.move-preview-label {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  flex-shrink: 0;
-}
-
-.move-preview-san {
-  font-family: 'Cinzel', serif;
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--correct);
-  letter-spacing: 0.04em;
-}
-
-.move-preview-uci {
-  font-size: 0.78rem;
-  color: var(--text-faint);
-  font-family: 'Courier New', monospace;
+.modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  padding-top: 0.3rem;
 }
 
 /* ══════════════════════════════════════════════════════════════
-   MOBILE TWEAKS
+   MOBILE
 ══════════════════════════════════════════════════════════════ */
 @media (max-width: 400px) {
-  .cat-pills {
-    flex-direction: column;
-  }
-  .cat-pill {
-    width: 100%;
-    text-align: center;
-  }
-  .modal-actions {
-    flex-direction: column-reverse;
-  }
-  .modal-actions .btn {
-    width: 100%;
-  }
+  .cat-pills, .csv-toolbar-btns { flex-direction: column; }
+  .cat-pill, .csv-btn { width: 100%; text-align: center; }
+  .modal-actions { flex-direction: column-reverse; }
+  .modal-actions .btn { width: 100%; }
+  .fc-idle-row { flex-wrap: wrap; }
 }

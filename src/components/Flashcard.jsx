@@ -2,11 +2,11 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { Chessboard } from 'react-chessboard'
 import { Chess } from 'chess.js'
 
-// ── Square highlight colours — steel blue ────────────────────────────────────
-const HL_SELECTED  = { background: 'rgba(59,130,246,0.9)',  borderRadius: '6px' }
-const HL_LEGAL     = { background: 'radial-gradient(circle, rgba(59,130,246,0.55) 28%, transparent 32%)' }
-const HL_CAPTURE   = { background: 'radial-gradient(circle, rgba(59,130,246,0.65) 65%, transparent 70%)', borderRadius: '50%' }
-const HL_SOLUTION  = { background: 'rgba(34,197,94,0.55)',  borderRadius: '4px' }
+// ── Highlight colours (steel blue) ───────────────────────────────────────────
+const HL_SELECTED = { background: 'rgba(59,130,246,0.9)',  borderRadius: '6px' }
+const HL_LEGAL    = { background: 'radial-gradient(circle, rgba(59,130,246,0.55) 28%, transparent 32%)' }
+const HL_CAPTURE  = { background: 'radial-gradient(circle, rgba(59,130,246,0.65) 65%, transparent 70%)', borderRadius: '50%' }
+const HL_SOLUTION = { background: 'rgba(34,197,94,0.55)', borderRadius: '4px' }
 
 function legalStyles(game, square) {
   const styles = { [square]: HL_SELECTED }
@@ -14,6 +14,16 @@ function legalStyles(game, square) {
     styles[to] = flags.includes('c') || flags.includes('e') ? HL_CAPTURE : HL_LEGAL
   })
   return styles
+}
+
+// ── Fisher-Yates shuffle ──────────────────────────────────────────────────────
+function shuffle(arr) {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -24,11 +34,14 @@ function Flashcard({ category, flashcards, onGoHome }) {
   const [highlights, setHighlights] = useState({})
   const [boardWidth, setBoardWidth] = useState(() => Math.min(window.innerWidth - 32, 480))
 
-  // Mutable refs — no stale-closure risk
-  const gameRef       = useRef(null)
-  const cardRef       = useRef(null)
-  const selectedRef   = useRef(null)
-  const lastCardIdRef = useRef(null)
+  // Shuffled deck + cursor
+  const deckRef       = useRef([])
+  const cursorRef     = useRef(0)
+
+  // Mutable interaction refs (no stale-closure issues)
+  const gameRef     = useRef(null)
+  const cardRef     = useRef(null)
+  const selectedRef = useRef(null)
 
   // ── Resize ────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -37,35 +50,40 @@ function Flashcard({ category, flashcards, onGoHome }) {
     return () => window.removeEventListener('resize', update)
   }, [])
 
-  // ── Card loading ──────────────────────────────────────────────────────────
-  const pickRandom = useCallback(() => {
-    if (!flashcards.length) return null
-    const pool = flashcards.length > 1
-      ? flashcards.filter((c) => c.id !== lastCardIdRef.current)
-      : flashcards
-    return pool[Math.floor(Math.random() * pool.length)]
+  // ── Build / rebuild shuffled deck when flashcards prop changes ────────────
+  useEffect(() => {
+    deckRef.current   = shuffle(flashcards)
+    cursorRef.current = 0
   }, [flashcards])
 
+  // ── Load a specific card onto the board ───────────────────────────────────
   const loadCard = useCallback((card) => {
     const g = new Chess(card.fen)
-    gameRef.current       = g
-    cardRef.current       = card
-    selectedRef.current   = null
-    lastCardIdRef.current = card.id
+    gameRef.current     = g
+    cardRef.current     = card
+    selectedRef.current = null
     setFen(g.fen())
     setStatus('idle')
     setHighlights({})
   }, [])
 
-  useEffect(() => {
-    const card = pickRandom()
-    if (card) loadCard(card)
-  }, []) // intentionally once
-
+  // ── Advance to the next card in the shuffled deck ─────────────────────────
+  // When we reach the end, reshuffle and start again
   const goNext = useCallback(() => {
-    const card = pickRandom()
-    if (card) loadCard(card)
-  }, [pickRandom, loadCard])
+    const deck = deckRef.current
+    if (!deck.length) return
+    cursorRef.current += 1
+    if (cursorRef.current >= deck.length) {
+      deckRef.current   = shuffle(flashcards)
+      cursorRef.current = 0
+    }
+    loadCard(deckRef.current[cursorRef.current])
+  }, [flashcards, loadCard])
+
+  // ── Initial load ──────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (flashcards.length) loadCard(deckRef.current[0])
+  }, []) // intentionally once
 
   // ── UCI → SAN ─────────────────────────────────────────────────────────────
   const uciToSan = (baseFen, uci) => {
@@ -86,23 +104,22 @@ function Flashcard({ category, flashcards, onGoHome }) {
     const piece       = g.get(from)
     const isPawnPromo = piece?.type === 'p' && (to[1] === '8' || to[1] === '1')
 
-    const gameCopy = new Chess(g.fen())
+    const copy = new Chess(g.fen())
     let move = null
-    try {
-      move = gameCopy.move({ from, to, promotion: isPawnPromo ? 'q' : undefined })
-    } catch { return false }
+    try { move = copy.move({ from, to, promotion: isPawnPromo ? 'q' : undefined }) }
+    catch { return false }
     if (!move) return false
 
-    const playedUci = (from + to + (isPawnPromo ? 'q' : '')).toLowerCase()
-    const bestUci   = card.bestMove.trim().toLowerCase()
+    const played = (from + to + (isPawnPromo ? 'q' : '')).toLowerCase()
+    const best   = card.bestMove.trim().toLowerCase()
 
     selectedRef.current = null
     setHighlights({})
 
-    if (playedUci === bestUci) {
-      gameRef.current = gameCopy
-      setFen(gameCopy.fen())
-      setStatus('correct')          // ← stays on 'correct', user clicks Next
+    if (played === best) {
+      gameRef.current = copy
+      setFen(copy.fen())
+      setStatus('correct')
       return true
     } else {
       setStatus('wrong')
@@ -183,11 +200,17 @@ function Flashcard({ category, flashcards, onGoHome }) {
   const catLabel    = category ? category.charAt(0).toUpperCase() + category.slice(1) : ''
   const canInteract = status === 'idle'
 
+  // ── Progress indicator ────────────────────────────────────────────────────
+  const progress    = deckRef.current.length
+    ? `${cursorRef.current + 1} / ${deckRef.current.length}`
+    : ''
+
   // ── Empty / loading ───────────────────────────────────────────────────────
   if (!flashcards.length) {
     return (
       <div className="fc-empty">
-        <p>No flashcards found for <strong>{catLabel}</strong>.</p>
+        <p>No flashcards in <strong>{catLabel}</strong> yet.</p>
+        <p className="fc-empty-hint">Add some from the Home screen first.</p>
         <button className="btn btn--ghost" onClick={onGoHome}>← Back to Home</button>
       </div>
     )
@@ -202,10 +225,11 @@ function Flashcard({ category, flashcards, onGoHome }) {
       {/* Top bar */}
       <div className="fc-topbar">
         <button className="btn btn--ghost btn--sm" onClick={onGoHome}>← Home</button>
+        <span className="fc-progress">{progress}</span>
         <span className={`fc-badge fc-badge--${category}`}>{catLabel}</span>
       </div>
 
-      {/* Card label (optional name, e.g. "Alapin Exchange Variation") */}
+      {/* Optional card label */}
       {currentCard?.label && (
         <div className="fc-label">{currentCard.label}</div>
       )}
@@ -239,9 +263,14 @@ function Flashcard({ category, flashcards, onGoHome }) {
       {/* Feedback */}
       <div className="fc-feedback">
         {status === 'idle' && (
-          <p className="hint">
-            {selectedRef.current ? 'Click the destination square' : 'Click a piece to select it'}
-          </p>
+          <div className="fc-idle-row">
+            <p className="hint">
+              {selectedRef.current ? 'Click the destination square' : 'Click a piece to select it'}
+            </p>
+            <button className="btn btn--ghost btn--sm skip-btn" onClick={goNext}>
+              Skip →
+            </button>
+          </div>
         )}
 
         {status === 'correct' && (
@@ -258,7 +287,8 @@ function Flashcard({ category, flashcards, onGoHome }) {
             <p>❌ Wrong move — try again!</p>
             <div className="fc-actions">
               <button className="btn btn--secondary" onClick={handleRetry}>↺ Retry</button>
-              <button className="btn btn--ghost" onClick={handleShowSolution}>💡 Show Solution</button>
+              <button className="btn btn--ghost"     onClick={handleShowSolution}>💡 Solution</button>
+              <button className="btn btn--ghost"     onClick={goNext}>Skip →</button>
             </div>
           </div>
         )}
