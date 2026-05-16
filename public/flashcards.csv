@@ -1,0 +1,11 @@
+id,category,fen,bestMove
+1,opening,rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1,e2e4
+2,opening,rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2,g1f3
+3,opening,r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3,f1b5
+4,opening,rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2,g1f3
+5,tactics,5rk1/5ppp/5N2/7Q/8/8/8/6K1 w - - 0 1,h5h7
+6,tactics,6k1/5ppp/8/8/8/8/5PPP/4R1K1 w - - 0 1,e1e8
+7,tactics,r1bq1rk1/pppp1ppp/2n2n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R w KQ - 4 6,e1g1
+8,tactics,r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4,e1g1
+9,endgame,8/8/4k3/8/8/8/4PK2/8 w - - 0 1,e2e4
+10,endgame,8/4P3/8/8/8/8/8/4K1k1 w - - 0 1,e7e8q
