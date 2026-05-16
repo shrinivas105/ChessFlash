@@ -7,7 +7,6 @@ const CATEGORIES = [
   { id: 'endgame',  label: 'Endgame',  icon: '♔' },
 ]
 
-// ─── Parse a FEN into a square→piece map ────────────────────────────────────
 function fenToMap(fen) {
   try {
     const g = new Chess(fen.trim())
@@ -21,20 +20,15 @@ function fenToMap(fen) {
   }
 }
 
-// ─── Diff two maps → find the single legal move that was played ─────────────
 function diffToMove(beforeMap, afterMap, beforeGame) {
   if (!beforeGame) return null
-  const legalMoves = beforeGame.moves({ verbose: true })
-
-  for (const m of legalMoves) {
+  for (const m of beforeGame.moves({ verbose: true })) {
     const sim = new Chess(beforeGame.fen())
     sim.move({ from: m.from, to: m.to, promotion: m.promotion ?? 'q' })
-
     const simMap = {}
     sim.board().forEach((row) =>
       row.forEach((sq) => { if (sq) simMap[sq.square] = { type: sq.type, color: sq.color } })
     )
-
     const allSq = new Set([...Object.keys(simMap), ...Object.keys(afterMap)])
     let match = true
     for (const sq of allSq) {
@@ -47,12 +41,12 @@ function diffToMove(beforeMap, afterMap, beforeGame) {
   return null
 }
 
-// ─── Validate ────────────────────────────────────────────────────────────────
 function validate(category, fenBefore, fenAfter) {
   const errors = {}
   if (!category) errors.category = 'Please select a category.'
 
-  const before = fenBefore.trim(); const after = fenAfter.trim()
+  const before = fenBefore.trim()
+  const after  = fenAfter.trim()
 
   if (!before) {
     errors.fenBefore = 'Paste the starting position FEN here.'
@@ -77,19 +71,19 @@ function validate(category, fenBefore, fenAfter) {
   return errors
 }
 
-// ────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
 
 function AddFlashcard({ onAdd, onClose }) {
   const [category,  setCategory]  = useState('')
   const [fenBefore, setFenBefore] = useState('')
   const [fenAfter,  setFenAfter]  = useState('')
+  const [label,     setLabel]     = useState('')   // optional
   const [errors,    setErrors]    = useState({})
   const [touched,   setTouched]   = useState({})
-  const [derived,   setDerived]   = useState(null) // { uci, san }
+  const [derived,   setDerived]   = useState(null)
 
   const overlayRef = useRef(null)
 
-  // Close on Escape
   useEffect(() => {
     const h = (e) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', h)
@@ -99,7 +93,7 @@ function AddFlashcard({ onAdd, onClose }) {
   const handleOverlayClick = (e) => { if (e.target === overlayRef.current) onClose() }
   const touch = (f) => setTouched((t) => ({ ...t, [f]: true }))
 
-  // Auto-derive move whenever both FENs are filled in
+  // Auto-derive move whenever both FENs change
   useEffect(() => {
     const before = fenBefore.trim(); const after = fenAfter.trim()
     if (!before || !after) { setDerived(null); return }
@@ -109,7 +103,7 @@ function AddFlashcard({ onAdd, onClose }) {
     setDerived(diffToMove(bMap, aMap, bGame))
   }, [fenBefore, fenAfter])
 
-  // Live validation on touched fields only
+  // Live validation on touched fields
   useEffect(() => {
     if (Object.keys(touched).length === 0) return
     const errs = validate(category, fenBefore, fenAfter)
@@ -128,7 +122,12 @@ function AddFlashcard({ onAdd, onClose }) {
     const { map: aMap }              = fenToMap(fenAfter.trim())
     const diff = diffToMove(bMap, aMap, bGame)
 
-    onAdd({ category, fen: fenBefore.trim(), bestMove: diff.uci })
+    onAdd({
+      category,
+      fen:      fenBefore.trim(),
+      bestMove: diff.uci,
+      label:    label.trim() || undefined,   // only included if non-empty
+    })
   }
 
   const hasError = (f) => touched[f] && errors[f]
@@ -172,6 +171,27 @@ function AddFlashcard({ onAdd, onClose }) {
             {hasError('category') && <p className="form-error">{errors.category}</p>}
           </div>
 
+          {/* Optional label */}
+          <div className="form-group">
+            <label className="form-label" htmlFor="card-label">
+              Name / Label
+              <span className="form-optional-badge">optional</span>
+            </label>
+            <input
+              id="card-label"
+              type="text"
+              className="form-input"
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+              placeholder="e.g. Alapin Exchange Variation"
+              maxLength={80}
+              autoComplete="off"
+            />
+            <p className="form-hint">
+              A short name shown above the board — helps you remember the idea.
+            </p>
+          </div>
+
           {/* FEN Before */}
           <div className="form-group">
             <label className="form-label" htmlFor="fen-before">
@@ -209,7 +229,7 @@ function AddFlashcard({ onAdd, onClose }) {
               value={fenAfter}
               onChange={(e) => setFenAfter(e.target.value)}
               onBlur={() => touch('fenAfter')}
-              placeholder="Play the best move on Lichess, then paste that new FEN…"
+              placeholder="Play the best move on Lichess, then paste the new FEN…"
               rows={2}
               spellCheck={false}
               autoComplete="off"
@@ -217,12 +237,12 @@ function AddFlashcard({ onAdd, onClose }) {
             {hasError('fenAfter')
               ? <p className="form-error">{errors.fenAfter}</p>
               : <p className="form-hint">
-                  Play the correct move on the board, then copy the updated FEN the same way.
+                  Play the correct move on the board, then copy that updated FEN the same way.
                 </p>
             }
           </div>
 
-          {/* Auto-detected move preview */}
+          {/* Move preview */}
           {derived && !errors.fenAfter && (
             <div className="move-preview">
               <span className="move-preview-check">✅</span>

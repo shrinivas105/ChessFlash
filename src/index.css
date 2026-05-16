@@ -843,6 +843,49 @@ body {
   padding-top: 0.3rem;
 }
 
+/* ── Card label shown above the board ── */
+.fc-label {
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--gold-light);
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+  border-radius: 100px;
+  padding: 0.35rem 1.1rem;
+  animation: fadeIn 0.3s ease;
+}
+
+/* ── Feedback row: message + Next button side by side ── */
+.feedback-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* ── Optional badge next to form label ── */
+.form-optional-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.45rem;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: 100px;
+  color: var(--text-faint);
+  vertical-align: middle;
+}
+
 /* ── Step badge next to label ── */
 .form-step-badge {
   display: inline-flex;
