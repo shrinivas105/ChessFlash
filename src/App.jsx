@@ -61,14 +61,14 @@ function normaliseRow(r, fallbackId) {
 
   // Already has a UCI bestMove (rows saved by the app)
   if (r.bestMove?.trim()) {
-    return { id, category, fen, bestMove: r.bestMove.trim(), bestMoveFen: r.bestMoveFen?.trim() || undefined, label }
+    return { id, category, fen, bestMove: r.bestMove.trim(), bestMoveFen: r.bestMoveFen?.trim() || undefined, label, pgn: r.pgn?.trim() || undefined }
   }
 
   // Has bestMoveFen — derive UCI via diff
   if (r.bestMoveFen?.trim()) {
     const uci = diffToUci(fen, r.bestMoveFen.trim())
-    if (!uci) return null   // couldn't diff — skip row
-    return { id, category, fen, bestMove: uci, bestMoveFen: r.bestMoveFen.trim(), label }
+    if (!uci) return null
+    return { id, category, fen, bestMove: uci, bestMoveFen: r.bestMoveFen.trim(), label, pgn: r.pgn?.trim() || undefined }
   }
 
   return null  // neither column present
@@ -85,8 +85,9 @@ function downloadCSV(cards) {
     bestMove:    c.bestMove,
     bestMoveFen: c.bestMoveFen ?? '',
     label:       c.label ?? '',
+    pgn:         c.pgn ?? '',
   }))
-  const csv  = Papa.unparse(rows, { columns: ['id', 'category', 'fen', 'bestMove', 'bestMoveFen', 'label'] })
+  const csv  = Papa.unparse(rows, { columns: ['id', 'category', 'fen', 'bestMove', 'bestMoveFen', 'label', 'pgn'] })
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
   const url  = URL.createObjectURL(blob)
   const a    = document.createElement('a')

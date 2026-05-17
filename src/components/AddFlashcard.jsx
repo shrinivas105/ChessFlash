@@ -78,6 +78,7 @@ function AddFlashcard({ onAdd, onClose }) {
   const [fenBefore, setFenBefore] = useState('')
   const [fenAfter,  setFenAfter]  = useState('')
   const [label,     setLabel]     = useState('')   // optional
+  const [pgn,       setPgn]       = useState('')   // optional
   const [errors,    setErrors]    = useState({})
   const [touched,   setTouched]   = useState({})
   const [derived,   setDerived]   = useState(null)
@@ -128,6 +129,7 @@ function AddFlashcard({ onAdd, onClose }) {
       bestMove:    diff.uci,
       bestMoveFen: fenAfter.trim(),
       label:       label.trim() || undefined,
+      pgn:         pgn.trim()   || undefined,
     })
   }
 
@@ -241,6 +243,28 @@ function AddFlashcard({ onAdd, onClose }) {
                   Play the correct move on the board, then copy that updated FEN the same way.
                 </p>
             }
+          </div>
+
+          {/* Optional PGN */}
+          <div className="form-group">
+            <label className="form-label" htmlFor="card-pgn">
+              Full Game PGN
+              <span className="form-optional-badge">optional</span>
+            </label>
+            <textarea
+              id="card-pgn"
+              className="form-input form-textarea"
+              value={pgn}
+              onChange={(e) => setPgn(e.target.value)}
+              placeholder={'[Event "?"]\n[White "?"]\n[Black "?"]\n\n1.e4 e5 2.Nf3 …'}
+              rows={4}
+              spellCheck={false}
+              autoComplete="off"
+            />
+            <p className="form-hint">
+              Paste the full game PGN — players can step through it after solving the card.
+              In Lichess: <strong>Share &amp; export → Copy PGN</strong>
+            </p>
           </div>
 
           {/* Move preview */}

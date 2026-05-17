@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { Chessboard } from 'react-chessboard'
 import { Chess } from 'chess.js'
+import PgnViewer from './PgnViewer'
 
 // ── Highlight colours (steel blue) ───────────────────────────────────────────
 const HL_SELECTED = { background: 'rgba(59,130,246,0.9)',  borderRadius: '6px' }
@@ -29,16 +30,17 @@ function shuffle(arr) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 function Flashcard({ category, flashcards, onGoHome }) {
-  const [fen,        setFen]        = useState(null)
-  const [status,     setStatus]     = useState('idle')  // idle | correct | wrong | solution
-  const [highlights, setHighlights] = useState({})
-  const [boardWidth, setBoardWidth] = useState(() => Math.min(window.innerWidth - 32, 480))
+  const [fen,         setFen]         = useState(null)
+  const [status,      setStatus]      = useState('idle')  // idle | correct | wrong | solution
+  const [highlights,  setHighlights]  = useState({})
+  const [showPgn,     setShowPgn]     = useState(false)
+  const [boardWidth,  setBoardWidth]  = useState(() => Math.min(window.innerWidth - 32, 480))
 
   // Shuffled deck + cursor
-  const deckRef       = useRef([])
-  const cursorRef     = useRef(0)
+  const deckRef     = useRef([])
+  const cursorRef   = useRef(0)
 
-  // Mutable interaction refs (no stale-closure issues)
+  // Mutable interaction refs — no stale-closure issues
   const gameRef     = useRef(null)
   const cardRef     = useRef(null)
   const selectedRef = useRef(null)
@@ -50,13 +52,13 @@ function Flashcard({ category, flashcards, onGoHome }) {
     return () => window.removeEventListener('resize', update)
   }, [])
 
-  // ── Build / rebuild shuffled deck when flashcards prop changes ────────────
+  // ── Build / rebuild shuffled deck ─────────────────────────────────────────
   useEffect(() => {
     deckRef.current   = shuffle(flashcards)
     cursorRef.current = 0
   }, [flashcards])
 
-  // ── Load a specific card onto the board ───────────────────────────────────
+  // ── Load a card ───────────────────────────────────────────────────────────
   const loadCard = useCallback((card) => {
     const g = new Chess(card.fen)
     gameRef.current     = g
@@ -65,10 +67,10 @@ function Flashcard({ category, flashcards, onGoHome }) {
     setFen(g.fen())
     setStatus('idle')
     setHighlights({})
+    setShowPgn(false)
   }, [])
 
-  // ── Advance to the next card in the shuffled deck ─────────────────────────
-  // When we reach the end, reshuffle and start again
+  // ── Advance to next card ──────────────────────────────────────────────────
   const goNext = useCallback(() => {
     const deck = deckRef.current
     if (!deck.length) return
@@ -199,8 +201,7 @@ function Flashcard({ category, flashcards, onGoHome }) {
   const bestMoveSan = currentCard ? uciToSan(currentCard.fen, currentCard.bestMove) : ''
   const catLabel    = category ? category.charAt(0).toUpperCase() + category.slice(1) : ''
   const canInteract = status === 'idle'
-
-  // ── Progress indicator ────────────────────────────────────────────────────
+  const hasPgn      = !!currentCard?.pgn
   const progress    = deckRef.current.length
     ? `${cursorRef.current + 1} / ${deckRef.current.length}`
     : ''
@@ -220,13 +221,27 @@ function Flashcard({ category, flashcards, onGoHome }) {
     return <div className="splash"><div className="splash-inner"><p>Loading…</p></div></div>
   }
 
+  // ── PGN button — shown in top-right always when card has PGN ─────────────
+  const PgnButton = () => hasPgn ? (
+    <button
+      className="btn btn--ghost btn--sm pgn-trigger-btn"
+      onClick={() => setShowPgn(true)}
+      title="View full game"
+    >
+      📖 Game
+    </button>
+  ) : null
+
   return (
     <div className="fc">
       {/* Top bar */}
       <div className="fc-topbar">
         <button className="btn btn--ghost btn--sm" onClick={onGoHome}>← Home</button>
         <span className="fc-progress">{progress}</span>
-        <span className={`fc-badge fc-badge--${category}`}>{catLabel}</span>
+        <div className="fc-topbar-right">
+          <PgnButton />
+          <span className={`fc-badge fc-badge--${category}`}>{catLabel}</span>
+        </div>
       </div>
 
       {/* Optional card label */}
@@ -267,9 +282,16 @@ function Flashcard({ category, flashcards, onGoHome }) {
             <p className="hint">
               {selectedRef.current ? 'Click the destination square' : 'Click a piece to select it'}
             </p>
-            <button className="btn btn--ghost btn--sm skip-btn" onClick={goNext}>
-              Skip →
-            </button>
+            <div className="fc-idle-actions">
+              {hasPgn && (
+                <button className="btn btn--ghost btn--sm" onClick={() => setShowPgn(true)}>
+                  📖 Game
+                </button>
+              )}
+              <button className="btn btn--ghost btn--sm skip-btn" onClick={goNext}>
+                Skip →
+              </button>
+            </div>
           </div>
         )}
 
@@ -277,7 +299,14 @@ function Flashcard({ category, flashcards, onGoHome }) {
           <div className="feedback feedback--correct">
             <div className="feedback-row">
               <span>✅ Correct! Well done</span>
-              <button className="btn btn--primary btn--sm" onClick={goNext}>Next →</button>
+              <div className="fc-btn-group">
+                {hasPgn && (
+                  <button className="btn btn--ghost btn--sm" onClick={() => setShowPgn(true)}>
+                    📖 Game
+                  </button>
+                )}
+                <button className="btn btn--primary btn--sm" onClick={goNext}>Next →</button>
+              </div>
             </div>
           </div>
         )}
@@ -288,6 +317,9 @@ function Flashcard({ category, flashcards, onGoHome }) {
             <div className="fc-actions">
               <button className="btn btn--secondary" onClick={handleRetry}>↺ Retry</button>
               <button className="btn btn--ghost"     onClick={handleShowSolution}>💡 Solution</button>
+              {hasPgn && (
+                <button className="btn btn--ghost" onClick={() => setShowPgn(true)}>📖 Game</button>
+              )}
               <button className="btn btn--ghost"     onClick={goNext}>Skip →</button>
             </div>
           </div>
@@ -297,11 +329,26 @@ function Flashcard({ category, flashcards, onGoHome }) {
           <div className="feedback feedback--solution">
             <div className="feedback-row">
               <p>Best move: <strong className="best-move-san">{bestMoveSan}</strong></p>
-              <button className="btn btn--primary btn--sm" onClick={goNext}>Next →</button>
+              <div className="fc-btn-group">
+                {hasPgn && (
+                  <button className="btn btn--ghost btn--sm" onClick={() => setShowPgn(true)}>
+                    📖 Game
+                  </button>
+                )}
+                <button className="btn btn--primary btn--sm" onClick={goNext}>Next →</button>
+              </div>
             </div>
           </div>
         )}
       </div>
+
+      {/* PGN viewer modal */}
+      {showPgn && currentCard?.pgn && (
+        <PgnViewer
+          pgn={currentCard.pgn}
+          onClose={() => setShowPgn(false)}
+        />
+      )}
     </div>
   )
 }

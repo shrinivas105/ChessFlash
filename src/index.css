@@ -985,3 +985,228 @@ body {
   .modal-actions .btn { width: 100%; }
   .fc-idle-row { flex-wrap: wrap; }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   PGN VIEWER MODAL
+══════════════════════════════════════════════════════════════ */
+
+.pgn-overlay { align-items: flex-end; }
+
+@media (min-height: 600px) {
+  .pgn-overlay { align-items: center; }
+}
+
+.pgn-modal {
+  max-width: 420px;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.pgn-body {
+  padding: 1.1rem 1.4rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  overflow-y: auto;
+}
+
+/* Meta */
+.pgn-meta { display: flex; flex-direction: column; gap: 0.3rem; }
+
+.pgn-players {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.pgn-player {
+  font-family: 'Cinzel', serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.pgn-player--white { color: var(--text); }
+.pgn-player--black { color: var(--text-muted); }
+.pgn-vs            { font-size: 0.72rem; color: var(--text-faint); }
+
+.pgn-result {
+  margin-left: auto;
+  font-family: 'Cinzel', serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--gold-light);
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+  border-radius: 100px;
+  padding: 0.15rem 0.65rem;
+}
+
+.pgn-subline {
+  font-size: 0.72rem;
+  color: var(--text-faint);
+  line-height: 1.5;
+}
+
+/* Board */
+.pgn-board-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.pgn-canvas {
+  border-radius: 4px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+  display: block;
+}
+
+.pgn-move-label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  min-height: 1.2em;
+  text-align: center;
+}
+
+/* Nav */
+.pgn-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.pgn-nav-btn {
+  width: 36px;
+  min-width: unset;
+  padding: 0.4rem;
+  font-size: 0.75rem;
+}
+.pgn-nav-btn:disabled { opacity: 0.25; }
+
+.pgn-nav-pos {
+  font-size: 0.78rem;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+  min-width: 48px;
+  text-align: center;
+}
+
+/* Move list */
+.pgn-movelist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: baseline;
+  max-height: 130px;
+  overflow-y: auto;
+  padding: 0.5rem 0.6rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.pgn-movenum {
+  font-size: 0.68rem;
+  color: var(--text-faint);
+  margin-right: 0.1rem;
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+
+.pgn-chip {
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  padding: 0.18rem 0.42rem;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.12s, border-color 0.12s;
+  user-select: none;
+}
+
+.pgn-chip--start {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.68rem;
+  color: var(--text-faint);
+  background: var(--bg-input);
+  border-color: var(--border);
+  margin-right: 0.2rem;
+}
+
+.pgn-chip--w {
+  color: var(--text);
+  background: var(--bg-card);
+  border-color: var(--border);
+}
+.pgn-chip--b {
+  color: var(--text-muted);
+  background: transparent;
+  border-color: transparent;
+}
+.pgn-chip:hover {
+  background: var(--bg-input);
+  border-color: var(--border-light);
+}
+.pgn-chip--active {
+  background: var(--gold-dim) !important;
+  border-color: var(--gold-border) !important;
+  color: var(--gold-light) !important;
+}
+
+.pgn-kbd-hint {
+  font-size: 0.7rem;
+  color: var(--text-faint);
+  text-align: center;
+}
+
+/* Error state */
+.pgn-error {
+  padding: 1rem;
+  color: var(--wrong);
+  background: var(--wrong-dim);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.pgn-error-detail {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* PGN trigger button in top bar */
+.fc-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pgn-trigger-btn {
+  color: var(--gold-light);
+  border-color: var(--gold-border);
+  background: var(--gold-dim);
+}
+.pgn-trigger-btn:hover {
+  background: rgba(201,148,26,0.25);
+}
+
+/* Button group inside feedback row */
+.fc-btn-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Idle row actions group */
+.fc-idle-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-shrink: 0;
+}
