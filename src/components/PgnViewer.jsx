@@ -47,11 +47,12 @@ function fenToBoard(fen) {
   })
 }
 
-function drawBoard(ctx, fen, fromSq, toSq, size) {
+function drawBoard(ctx, fen, fromSq, toSq, size, orientation = 'white') {
   const PAD    = Math.round(size * 0.07)
   const boardPx = size - PAD
   const sq     = Math.floor(boardPx / 8)
   const board  = fenToBoard(fen)
+  const black  = orientation === 'black'
 
   // Background
   ctx.fillStyle = '#f5f0e8'
@@ -60,8 +61,10 @@ function drawBoard(ctx, fen, fromSq, toSq, size) {
   // Squares
   for (let r = 0; r < 8; r++) {
     for (let f = 0; f < 8; f++) {
-      const x      = PAD + f * sq
-      const y      = PAD + r * sq
+      const drawFile = black ? 7 - f : f
+      const drawRank = black ? 7 - r : r
+      const x      = PAD + drawFile * sq
+      const y      = PAD + drawRank * sq
       const sqName = String.fromCharCode(97 + f) + (8 - r)
       let fill
       if      (sqName === fromSq) fill = '#c8a84b'
@@ -82,12 +85,14 @@ function drawBoard(ctx, fen, fromSq, toSq, size) {
   ctx.font      = `${fontSize}px monospace`
   ctx.fillStyle = '#666'
   ctx.textAlign = 'center'
+  const files = black ? ['h','g','f','e','d','c','b','a'] : ['a','b','c','d','e','f','g','h']
   for (let f = 0; f < 8; f++) {
-    ctx.fillText(String.fromCharCode(97 + f), PAD + f * sq + sq / 2, PAD + 8 * sq + PAD * 0.8)
+    ctx.fillText(files[f], PAD + f * sq + sq / 2, PAD + 8 * sq + PAD * 0.8)
   }
   ctx.textAlign = 'right'
   for (let r = 0; r < 8; r++) {
-    ctx.fillText(String(8 - r), PAD - 2, PAD + r * sq + sq * 0.65)
+    const rankLabel = black ? String(r + 1) : String(8 - r)
+    ctx.fillText(rankLabel, PAD - 2, PAD + r * sq + sq * 0.65)
   }
 
   // Pieces
@@ -99,7 +104,9 @@ function drawBoard(ctx, fen, fromSq, toSq, size) {
       const key   = color + piece.toUpperCase()
       const img   = pieceImages[key]
       if (img && img.complete && img.naturalWidth > 0) {
-        ctx.drawImage(img, PAD + f * sq, PAD + r * sq, sq, sq)
+        const drawFile = black ? 7 - f : f
+        const drawRank = black ? 7 - r : r
+        ctx.drawImage(img, PAD + drawFile * sq, PAD + drawRank * sq, sq, sq)
       }
     }
   }
@@ -111,10 +118,15 @@ function drawBoard(ctx, fen, fromSq, toSq, size) {
     const fileTo   = toSq.charCodeAt(0) - 97
     const rankTo   = parseInt(toSq[1]) - 1
 
-    const cx = PAD + fileFrom * sq + sq / 2
-    const cy = PAD + (7 - rankFrom) * sq + sq / 2
-    const ex = PAD + fileTo   * sq + sq / 2
-    const ey = PAD + (7 - rankTo)   * sq + sq / 2
+    const fromFile = black ? 7 - fileFrom : fileFrom
+    const fromRank = black ? rankFrom : 7 - rankFrom
+    const toFile   = black ? 7 - fileTo   : fileTo
+    const toRank   = black ? rankTo   : 7 - rankTo
+
+    const cx = PAD + fromFile * sq + sq / 2
+    const cy = PAD + fromRank * sq + sq / 2
+    const ex = PAD + toFile   * sq + sq / 2
+    const ey = PAD + toRank   * sq + sq / 2
 
     const dx = ex - cx, dy = ey - cy
     const len = Math.sqrt(dx * dx + dy * dy)
@@ -201,7 +213,7 @@ function parsePgn(pgn) {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-function PgnViewer({ pgn, onClose }) {
+function PgnViewer({ pgn, onClose, orientation = 'white' }) {
   const [moveIndex,   setMoveIndex]   = useState(-1)    // -1 = starting position
   const [moves,       setMoves]       = useState([])
   const [headers,     setHeaders]     = useState({})
@@ -246,7 +258,7 @@ function PgnViewer({ pgn, onClose }) {
       const fen     = current ? current.fen : 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
       const from    = current ? current.from : null
       const to      = current ? current.to   : null
-      drawBoard(ctx, fen, from, to, boardSize)
+      drawBoard(ctx, fen, from, to, boardSize, orientation)
     }
 
     whenPiecesReady(render)

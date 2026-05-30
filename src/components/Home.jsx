@@ -62,7 +62,6 @@ function Home({
               <span className="cat-icon">{cat.icon}</span>
               <div className="cat-text">
                 <span className="cat-name">{cat.label}</span>
-                <span className="cat-desc">{cat.desc}</span>
               </div>
               <span className="cat-count">
                 {count > 0 ? `${count} card${count !== 1 ? 's' : ''}` : 'no cards'}

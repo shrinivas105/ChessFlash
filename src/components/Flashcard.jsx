@@ -346,6 +346,7 @@ function Flashcard({ category, flashcards, onGoHome }) {
       {showPgn && currentCard?.pgn && (
         <PgnViewer
           pgn={currentCard.pgn}
+          orientation={currentCard.fen?.split(' ')[1] === 'b' ? 'black' : 'white'}
           onClose={() => setShowPgn(false)}
         />
       )}
