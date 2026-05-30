@@ -197,7 +197,7 @@ function Flashcard({ category, flashcards, onGoHome }) {
   const game        = gameRef.current
   const currentCard = cardRef.current
   const sideToMove  = game ? (game.turn() === 'w' ? 'White to move' : 'Black to move') : ''
-  const orientation = game?.turn() === 'b' ? 'black' : 'white'
+  const orientation = currentCard?.fen?.split(' ')[1] === 'b' ? 'black' : 'white'
   const bestMoveSan = currentCard ? uciToSan(currentCard.fen, currentCard.bestMove) : ''
   const catLabel    = category ? category.charAt(0).toUpperCase() + category.slice(1) : ''
   const canInteract = status === 'idle'
