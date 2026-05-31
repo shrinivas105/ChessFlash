@@ -304,11 +304,20 @@ body {
 
 /* ── Top bar ── */
 .fc-topbar {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  justify-content: space-between;
   width: 100%;
   max-width: 480px;
+  gap: 0.75rem;
+}
+
+.fc-progress {
+  font-size: 0.75rem;
+  color: var(--text-faint);
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  justify-self: center;
 }
 
 /* ── Category badge ── */
@@ -716,14 +725,6 @@ body {
 /* ══════════════════════════════════════════════════════════════
    FLASHCARD — PROGRESS + SKIP + LABEL
 ══════════════════════════════════════════════════════════════ */
-
-/* Progress "1 / 12" in the top bar */
-.fc-progress {
-  font-size: 0.75rem;
-  color: var(--text-faint);
-  letter-spacing: 0.06em;
-  font-variant-numeric: tabular-nums;
-}
 
 /* Card label pill above board */
 .fc-label {
@@ -1183,12 +1184,16 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  justify-self: end;
 }
 
 .pgn-trigger-btn {
   color: var(--gold-light);
   border-color: var(--gold-border);
   background: var(--gold-dim);
+  min-width: auto;
+  padding: 0.45rem 0.8rem;
+  font-size: 0.82rem;
 }
 .pgn-trigger-btn:hover {
   background: rgba(201,148,26,0.25);
