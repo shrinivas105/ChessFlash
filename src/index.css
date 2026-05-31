@@ -745,10 +745,10 @@ body {
 /* Idle row: hint text + skip button side by side */
 .fc-idle-row {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
   gap: 0.75rem;
+  width: 100%;
 }
 
 .skip-btn {
@@ -764,6 +764,7 @@ body {
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
+  width: 100%;
 }
 
 /* Empty state hint */
@@ -1198,7 +1199,10 @@ body {
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  justify-content: flex-end;
   flex-shrink: 0;
+  width: 100%;
+  max-width: 260px;
 }
 
 /* Idle row actions group */
@@ -1206,5 +1210,7 @@ body {
   display: flex;
   gap: 0.5rem;
   align-items: center;
-  flex-shrink: 0;
+  justify-content: center;
+  width: 100%;
+  max-width: 260px;
 }
